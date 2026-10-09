@@ -1,0 +1,1551 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    - uuid: 36bff6c29af64692839d077febfc7079
+      name: 'Templates/Network devices'
+  templates:
+    - uuid: 6e2cd5e01275491697fb6e075df5107a
+      template: 'Cisco ASA IPSec'
+      name: 'Cisco ASA IPSec'
+      description: |
+        IPSec Template For Cisco ASA v1.0
+        Tested on Cisco ASA5525 (Software Version 9.12(4)13)
+        (compatible with Zabbix 6.4)
+        
+        by Aram Khalapyan (akhalapyan@telecomarmenia.am)
+      groups:
+        - name: 'Templates/Network devices'
+      items:
+        - uuid: 297dc806ee2446a48981cef63c7f2d63
+          name: 'Global Active IKE Tunnels'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.171.1.2.1.1.0
+          key: cikeGlobalActiveTunnels
+          delay: 5m
+          tags:
+            - tag: Application
+              value: IPSec
+        - uuid: 5f444a15bb614e9e8f4391bcacc6f7bd
+          name: 'Global IKE Tunnels Bits Received'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.171.1.2.1.3.0
+          key: cikeGlobalInOctets
+          delay: 5m
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+          tags:
+            - tag: Application
+              value: IPSec
+        - uuid: 9c0e7c854ba14eb7b0a491431e2f4941
+          name: 'Global IKE Tunnels Bits Sent'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.171.1.2.1.11.0
+          key: cikeGlobalOutOctets
+          delay: 5m
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+          tags:
+            - tag: Application
+              value: IPSec
+        - uuid: f10acf149a7a41a1a3cca322a623bfa0
+          name: 'Global Active IPSec Tunnels'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.171.1.3.1.1.0
+          key: cipSecGlobalActiveTunnels
+          delay: 5m
+          tags:
+            - tag: Application
+              value: IPSec
+        - uuid: fbcce181cdfd4272b2699a2598376c0f
+          name: 'Global IPSec Tunnels Bits Received Decompressed'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.171.1.3.1.7.0
+          key: cipSecGlobalHcInDecompOctets
+          delay: 5m
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+          tags:
+            - tag: Application
+              value: IPSec
+        - uuid: 313de75959144a57bccdc56dd4b91d08
+          name: 'Global IPSec Tunnels Bits Received'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.171.1.3.1.4.0
+          key: cipSecGlobalHcInOctets
+          delay: 5m
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+          tags:
+            - tag: Application
+              value: IPSec
+        - uuid: 49e7960d0ab74660b78d81a9f3fd40f4
+          name: 'Global IPSec Tunnels Bits Sent'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.171.1.3.1.17.0
+          key: cipSecGlobalHcOutOctets
+          delay: 5m
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+          tags:
+            - tag: Application
+              value: IPSec
+        - uuid: a188ef49e5144b3db4a1ffeb890b7a76
+          name: 'Global IPSec Tunnels Bits Sent Uncompressed'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.9.9.171.1.3.1.19.0
+          key: cipSecGlobalOutUncompOctets
+          delay: 5m
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+          tags:
+            - tag: Application
+              value: IPSec
+      discovery_rules:
+        - uuid: 19a83cde951f44deb1359a20ce50d2a4
+          name: 'IKE tunnels discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#RPADDR},1.3.6.1.4.1.9.9.171.1.2.3.1.8]'
+          key: net.ike.discovery
+          delay: 1h
+          description: 'Discovering IKE tunnels'
+          item_prototypes:
+            - uuid: ded34d46f64d4944b712caa2160d1acb
+              name: 'IKE Tunnel Active Time (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.16.{#SNMPINDEX}'
+              key: 'cikeTunActiveTime[{#RPADDR}]'
+              units: s
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.01'
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: eed615762bac474d9f5f2bc448caf417
+              name: 'IKE Tunnel Authentication Method (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.14.{#SNMPINDEX}'
+              key: 'cikeTunAuthMethod[{#RPADDR}]'
+              delay: 1h
+              valuemap:
+                name: IkeAuthMethod
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: f96a58bf57df41948546b6cb209557ea
+              name: 'IKE Tunnel DH Group (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.11.{#SNMPINDEX}'
+              key: 'cikeTunDiffHellmanGrp[{#RPADDR}]'
+              delay: 1h
+              valuemap:
+                name: DiffHellmanGrp
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: ebf39d61feb342ac8013a5ca374453c6
+              name: 'IKE Tunnel Encryption Algorithm (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.12.{#SNMPINDEX}'
+              key: 'cikeTunEncryptAlgo[{#RPADDR}]'
+              delay: 1h
+              valuemap:
+                name: EncryptAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 438eafe3493a45f5814a636c31cf1414
+              name: 'IKE Tunnel Hash Algorithm (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.13.{#SNMPINDEX}'
+              key: 'cikeTunHashAlgo[{#RPADDR}]'
+              delay: 1h
+              valuemap:
+                name: IkeHashAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: d333a77779d94657b2921dfe113c9765
+              name: 'IKE Tunnel In Packets Dropped (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.21.{#SNMPINDEX}'
+              key: 'cikeTunInDropPkts[{#RPADDR}]'
+              delay: 5m
+              units: pkts
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: a56f490e45d1432081aa26627126c24f
+              name: 'IKE Tunnel In Notifys (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.22.{#SNMPINDEX}'
+              key: 'cikeTunInNotifys[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 6324255f429c401b99658e98963a0462
+              name: 'IKE Tunnel In Octets (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.19.{#SNMPINDEX}'
+              key: 'cikeTunInOctets[{#RPADDR}]'
+              delay: 5m
+              units: B
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 04f15df4092748fea10b8209613a27a2
+              name: 'IKE Tunnel In Phase-2 Exchanges Invalids (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.24.{#SNMPINDEX}'
+              key: 'cikeTunInP2ExchgInvalids[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 19eb5a9352cc4d36a6bf5e123046faad
+              name: 'IKE Tunnel In Phase-2 Exchanges Rejects (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.25.{#SNMPINDEX}'
+              key: 'cikeTunInP2ExchgRejects[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 40c3dc86d0be4d3f8153891155f3d2e8
+              name: 'IKE Tunnel In Phase-2 Exchanges (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.23.{#SNMPINDEX}'
+              key: 'cikeTunInP2Exchgs[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: e6a836475d884928bbc9d8b1245b2b88
+              name: 'IKE Tunnel In Phase-2 SA Delete Requests (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.26.{#SNMPINDEX}'
+              key: 'cikeTunInP2SaDelRequests[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 2b6c8c1daeac424a99aa6e19d2d345a9
+              name: 'IKE Tunnel In Packets (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.20.{#SNMPINDEX}'
+              key: 'cikeTunInPkts[{#RPADDR}]'
+              delay: 5m
+              units: pkts
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: b5f4633df3984b83a8d228aa42014308
+              name: 'IKE Tunnel Lifetime (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.15.{#SNMPINDEX}'
+              key: 'cikeTunLifeTime[{#RPADDR}]'
+              delay: 1h
+              units: s
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 16e620e6472049ba822ccf94e62335c1
+              name: 'IKE Tunnel Negotiation Mode (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.10.{#SNMPINDEX}'
+              key: 'cikeTunNegoMode[{#RPADDR}]'
+              delay: 1h
+              valuemap:
+                name: IkeNegoMode
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 2dd6ec8ee866470b9b5610735b121316
+              name: 'IKE Tunnel Out Packets Dropped (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.29.{#SNMPINDEX}'
+              key: 'cikeTunOutDropPkts[{#RPADDR}]'
+              delay: 5m
+              units: pkts
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 94144bdf08ba4a56befab6a65711c992
+              name: 'IKE Tunnel Out Notifys (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.30.{#SNMPINDEX}'
+              key: 'cikeTunOutNotifys[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 3592ae5465e7446890be0d8bba479e48
+              name: 'IKE Tunnel Out Octets (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.27.{#SNMPINDEX}'
+              key: 'cikeTunOutOctets[{#RPADDR}]'
+              delay: 5m
+              units: B
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: f4779852e0d0467da51389e9c47c92bc
+              name: 'IKE Tunnel Out Phase-2 Exchanges Invalids (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.32.{#SNMPINDEX}'
+              key: 'cikeTunOutP2ExchgInvalids[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: b4524cdf563044bbb725e0b3c7cd6099
+              name: 'IKE Tunnel Out Phase-2 Exchanges Rejects (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.33.{#SNMPINDEX}'
+              key: 'cikeTunOutP2ExchgRejects[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 7dd3710fc34a40a5858c679c0d0b365b
+              name: 'IKE Tunnel Out Phase-2 Exchanges (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.31.{#SNMPINDEX}'
+              key: 'cikeTunOutP2Exchgs[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 15696ffd40be492ab82e0577958ab97d
+              name: 'IKE Tunnel Out Phase-2 SA Delete Requests (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.34.{#SNMPINDEX}'
+              key: 'cikeTunOutP2SaDelRequests[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: 8ed7be0e39f14733b18ec4f6164ca837
+              name: 'IKE Tunnel Out Packets (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.28.{#SNMPINDEX}'
+              key: 'cikeTunOutPkts[{#RPADDR}]'
+              delay: 5m
+              units: pkts
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: f47877a677df4cad866e6f5754f7c9bc
+              name: 'IKE Tunnel SA Refresh Threshhold  (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.17.{#SNMPINDEX}'
+              key: 'cikeTunSaRefreshThreshold[{#RPADDR}]'
+              delay: 5m
+              units: s
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+            - uuid: c29082c90f9245fbb16a382fcb0dc1dd
+              name: 'IKE Tunnel Status (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.35.{#SNMPINDEX}'
+              key: 'cikeTunStatus[{#RPADDR}]'
+              valuemap:
+                name: TunnelStatus
+              preprocessing:
+                - type: CHECK_NOT_SUPPORTED
+                  parameters:
+                    - ''
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+              trigger_prototypes:
+                - uuid: ada767a4e61a4d97873a373a119eb9f1
+                  expression: 'last(/Cisco ASA IPSec/cikeTunStatus[{#RPADDR}])<>1'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/Cisco ASA IPSec/cikeTunStatus[{#RPADDR}])=1'
+                  name: 'IKE tunnel to peer {#RPADDR} is {ITEM.LASTVALUE1}'
+                  opdata: 'Current status: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  manual_close: 'YES'
+            - uuid: 02c3e6cb2f984e4080fa2bbf5456ff51
+              name: 'IKE Tunnel Total SA Refreshes (Peer: {#RPADDR})'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.2.3.1.18.{#SNMPINDEX}'
+              key: 'cikeTunTotalRefreshes[{#RPADDR}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase1
+          graph_prototypes:
+            - uuid: 4f020eb4266140c5bdbb8b46a4251eb0
+              name: 'IKE Tunnel Status (Peer: {#RPADDR})'
+              yaxismin: '-1'
+              yaxismax: '2'
+              ymin_type_1: FIXED
+              ymax_type_1: FIXED
+              graph_items:
+                - drawtype: BOLD_LINE
+                  color: FFBF00
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunStatus[{#RPADDR}]'
+                - sortorder: '1'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunActiveTime[{#RPADDR}]'
+                - sortorder: '2'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunTotalRefreshes[{#RPADDR}]'
+                - sortorder: '3'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunInOctets[{#RPADDR}]'
+                - sortorder: '4'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunInPkts[{#RPADDR}]'
+                - sortorder: '5'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunInDropPkts[{#RPADDR}]'
+                - sortorder: '6'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunInNotifys[{#RPADDR}]'
+                - sortorder: '7'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunInP2Exchgs[{#RPADDR}]'
+                - sortorder: '8'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunInP2ExchgInvalids[{#RPADDR}]'
+                - sortorder: '9'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunInP2ExchgRejects[{#RPADDR}]'
+                - sortorder: '10'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunInP2SaDelRequests[{#RPADDR}]'
+                - sortorder: '11'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunOutOctets[{#RPADDR}]'
+                - sortorder: '12'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunOutPkts[{#RPADDR}]'
+                - sortorder: '13'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunOutDropPkts[{#RPADDR}]'
+                - sortorder: '14'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunOutNotifys[{#RPADDR}]'
+                - sortorder: '15'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunOutP2Exchgs[{#RPADDR}]'
+                - sortorder: '16'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunOutP2ExchgInvalids[{#RPADDR}]'
+                - sortorder: '17'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunOutP2ExchgRejects[{#RPADDR}]'
+                - sortorder: '18'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunOutP2SaDelRequests[{#RPADDR}]'
+                - sortorder: '19'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cikeTunLifeTime[{#RPADDR}]'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  function tryParseIPv4(s) {
+                      // Убираем пробелы
+                      s = s.replace(/\s+/g, '');
+                  
+                      // Если строка длиной 8 символов HEX
+                      if (/^[0-9A-Fa-f]{8}$/.test(s)) {
+                          return parseInt(s.substr(0,2),16) + "." +
+                                 parseInt(s.substr(2,2),16) + "." +
+                                 parseInt(s.substr(4,2),16) + "." +
+                                 parseInt(s.substr(6,2),16);
+                      }
+                  
+                      // Если длина 4 → считаем raw bytes
+                      if (s.length === 4) {
+                          return s.charCodeAt(0) + "." +
+                                 s.charCodeAt(1) + "." +
+                                 s.charCodeAt(2) + "." +
+                                 s.charCodeAt(3);
+                      }
+                  
+                      return null; // не IPv4
+                  }
+                  
+                  function tryParseIPv6(s) {
+                      s = s.replace(/\s+/g, '');
+                  
+                      // 32 hex символа → IPv6
+                      if (/^[0-9A-Fa-f]{32}$/.test(s)) {
+                          var parts = [];
+                          for (var i=0;i<32;i+=4) parts.push(s.substr(i,4));
+                          var ip = parts.join(":");
+                          ip = ip.replace(/\b(?:0+:){2,}/, ':')
+                                 .split(':')
+                                 .map(function(o){ return o.replace(/^0+/, '') || '0'; })
+                                 .join(':')
+                                 .toLowerCase();
+                          return ip;
+                      }
+                  
+                      // 16 raw chars → binary IPv6
+                      if (s.length === 16) {
+                          var parts = [];
+                          for (var i=0;i<16;i+=2) {
+                              var v = (s.charCodeAt(i)<<8) + s.charCodeAt(i+1);
+                              parts.push(v.toString(16));
+                          }
+                          var ip = parts.join(":");
+                          ip = ip.replace(/\b(?:0+:){2,}/, ':')
+                                 .split(':')
+                                 .map(function(o){ return o.replace(/^0+/, '') || '0'; })
+                                 .join(':')
+                                 .toLowerCase();
+                          return ip;
+                      }
+                  
+                      return null; // не IPv6
+                  }
+                  
+                  // ---- Основной блок ----
+                  var json = JSON.parse(value);
+                  
+                  json.forEach(function(item){
+                      for (var key in item) {
+                          if (!item.hasOwnProperty(key)) continue;
+                  
+                          var v = String(item[key]).trim();
+                  
+                          var ipv4 = tryParseIPv4(v);
+                          if (ipv4 !== null) {
+                              item[key] = ipv4;
+                              continue;
+                          }
+                  
+                          var ipv6 = tryParseIPv6(v);
+                          if (ipv6 !== null) {
+                              item[key] = ipv6;
+                              continue;
+                          }
+                  
+                          // иначе оставляем как есть
+                      }
+                  });
+                  
+                  return JSON.stringify(json);
+                  
+        - uuid: 92ea849790d942858cf4ea96db3c3349
+          name: 'IPSec tunnels discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#RPADDR},1.3.6.1.4.1.9.9.171.1.3.2.1.5,{#LADDR1},1.3.6.1.4.1.9.9.171.1.3.3.1.4,{#LADDR2},1.3.6.1.4.1.9.9.171.1.3.3.1.5,{#RADDR1},1.3.6.1.4.1.9.9.171.1.3.3.1.10,{#RADDR2},1.3.6.1.4.1.9.9.171.1.3.3.1.11]'
+          key: net.ipsec.discovery
+          delay: 1h
+          description: 'Discovering IPSec tunnels'
+          item_prototypes:
+            - uuid: d59f485ea03145bd95584ab851f1e008
+              name: 'IPSec Tunnel Active Time (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.10.{#SNMPINDEX}'
+              key: 'cipSecTunActiveTime[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              units: s
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.01'
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: d321b5256e0b4dd18a39cd06b28b1395
+              name: 'IPSec Tunnel Current SA Instances (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.15.{#SNMPINDEX}'
+              key: 'cipSecTunCurrentSaInstances[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: aee191e7002c4a41834e1daa371db08d
+              name: 'IPSec Tunnel Encapsulation Mode (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.7.{#SNMPINDEX}'
+              key: 'cipSecTunEncapMode[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: EncapMode
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 7519ef996fca4dd4840c2b4a4fbac9eb
+              name: 'IPSec Tunnel Expired SA Instances (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.14.{#SNMPINDEX}'
+              key: 'cipSecTunExpiredSaInstances[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 5888ac819ae14609a016e6081d96aa5e
+              name: 'IPSec Tunnel In Decompressed Octets (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.30.{#SNMPINDEX}'
+              key: 'cipSecTunHcInDecompOctets[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              units: B
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 432ed9c172a345aba4611906ce2acbed
+              name: 'IPSec Tunnel In Octets (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.27.{#SNMPINDEX}'
+              key: 'cipSecTunHcInOctets[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              units: B
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 5a590d5e4fa04780a65ad71254472923
+              name: 'IPSec Tunnel Out Octets (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.40.{#SNMPINDEX}'
+              key: 'cipSecTunHcOutOctets[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              units: B
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: dbd3ae290a644f868650cc785ba741ee
+              name: 'IPSec Tunnel Out Uncompressed Octets (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.43.{#SNMPINDEX}'
+              key: 'cipSecTunHcOutUncompOctets[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              units: B
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: d68d7205977249ce87f93ea5202db1c9
+              name: 'IPSec Tunnel''s IKE Tunnel Alive (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.3.{#SNMPINDEX}'
+              key: 'cipSecTunIkeTunnelAlive[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: cafdbd411a4442e498eada4945e2b3e5
+              name: 'IPSec Tunnel In Authentication Fails (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.36.{#SNMPINDEX}'
+              key: 'cipSecTunInAuthFails[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 1a4f0d86f2f24b0e97b9922468fc14ed
+              name: 'IPSec Tunnel In Authentications (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.35.{#SNMPINDEX}'
+              key: 'cipSecTunInAuths[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: ba3e521ea4e1467599f4edb11df838b1
+              name: 'IPSec Tunnel In Decryption Fails (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.38.{#SNMPINDEX}'
+              key: 'cipSecTunInDecryptFails[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 2d2ec3c866584c358cb65fcbd385f1db
+              name: 'IPSec Tunnel In Decryptions (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.37.{#SNMPINDEX}'
+              key: 'cipSecTunInDecrypts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: b4d4d29af3c244a58a39922bff37104a
+              name: 'IPSec Tunnel In Packets Dropped (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.33.{#SNMPINDEX}'
+              key: 'cipSecTunInDropPkts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              units: pkts
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 393d9d213ded41cda653a23e13706bb2
+              name: 'IPSec Tunnel In Packets (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.32.{#SNMPINDEX}'
+              key: 'cipSecTunInPkts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              units: pkts
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: d3371e9d51724b27a7a5ecc3940232d8
+              name: 'IPSec Tunnel In SA AH Authentication Algorithm (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.18.{#SNMPINDEX}'
+              key: 'cipSecTunInSaAhAuthAlgo[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: AuthAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 4d276641e0ec400b9d1d886eee8a8818
+              name: 'IPSec Tunnel In SA Decompression Algorithm (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.20.{#SNMPINDEX}'
+              key: 'cipSecTunInSaDecompAlgo[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: CompAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 27c4bf8c3ae64a4d866cf61ee4ad670c
+              name: 'IPSec Tunnel In SA DH Group (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.16.{#SNMPINDEX}'
+              key: 'cipSecTunInSaDiffHellmanGrp[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: DiffHellmanGrp
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 21a5d7e340644c6ea0ff02410e41f253
+              name: 'IPSec Tunnel In SA Encryption Algorithm (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.17.{#SNMPINDEX}'
+              key: 'cipSecTunInSaEncryptAlgo[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: EncryptAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 7704aea959e147f4adeb6faeeda4ec02
+              name: 'IPSec Tunnel In SA ESP Authentication Algorithm (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.19.{#SNMPINDEX}'
+              key: 'cipSecTunInSaEspAuthAlgo[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: AuthAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: c9ce7621fb1a47c4983958b887a108f9
+              name: 'IPSec Tunnel Lifetime (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.9.{#SNMPINDEX}'
+              key: 'cipSecTunLifeTime[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              units: s
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 8f6a7ed166c842f7a4986341badc5913
+              name: 'IPSec Tunnel Out Authentication Fails (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.48.{#SNMPINDEX}'
+              key: 'cipSecTunOutAuthFails[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 3b231604e49a4c5796e2e3368c873514
+              name: 'IPSec Tunnel Out Authentications (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.47.{#SNMPINDEX}'
+              key: 'cipSecTunOutAuths[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: afaa895aeb984391b9a9f5e7ebeba65d
+              name: 'IPSec Tunnel Out Packets Dropped (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.46.{#SNMPINDEX}'
+              key: 'cipSecTunOutDropPkts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              units: pkts
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 773843c707134e2a8c79a52e8a1323b7
+              name: 'IPSec Tunnel Out Encryption Fails (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.50.{#SNMPINDEX}'
+              key: 'cipSecTunOutEncryptFails[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 439eee07cfb2479c9939a60c34e6507e
+              name: 'IPSec Tunnel Out Encryptions (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.49.{#SNMPINDEX}'
+              key: 'cipSecTunOutEncrypts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: acddc7a7f4c34623b0a875790450bafa
+              name: 'IPSec Tunnel Out Packets (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.45.{#SNMPINDEX}'
+              key: 'cipSecTunOutPkts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              units: pkts
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 2d22ee9a94d745168b511e1a199af0c0
+              name: 'IPSec Tunnel Out SA AH Authentication Algorithm (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.23.{#SNMPINDEX}'
+              key: 'cipSecTunOutSaAhAuthAlgo[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: AuthAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: a30400586ccb4e0d9804e5e7ffd28238
+              name: 'IPSec Tunnel Out SA Compression Algorithm (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.25.{#SNMPINDEX}'
+              key: 'cipSecTunOutSaCompAlgo[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: CompAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: e87904316c174cc387fd7d049bff2e74
+              name: 'IPSec Tunnel Out SA DH Group (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.21.{#SNMPINDEX}'
+              key: 'cipSecTunOutSaDiffHellmanGrp[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: DiffHellmanGrp
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: c50805b2c5ed42ff878a00a06b52e406
+              name: 'IPSec Tunnel Out SA Encryption Algorithm (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.22.{#SNMPINDEX}'
+              key: 'cipSecTunOutSaEncryptAlgo[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: EncryptAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 3d55ec29416943dab112d15541cf6c20
+              name: 'IPSec Tunnel Out SA ESP Authentication Algorithm (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.24.{#SNMPINDEX}'
+              key: 'cipSecTunOutSaEspAuthAlgo[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              valuemap:
+                name: AuthAlgo
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: a96399a2df4149488ca165512f3d7238
+              name: 'IPSec Tunnel SA LifeSize Threshold (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.11.{#SNMPINDEX}'
+              key: 'cipSecTunSaLifeSizeThreshold[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              units: B
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '1024'
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 02352ea84d2a4d16a15c48ae9e7ec2d0
+              name: 'IPSec Tunnel SA LifeTime Threshold (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.12.{#SNMPINDEX}'
+              key: 'cipSecTunSaLifeTimeThreshold[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 1h
+              units: s
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 33fcdcd04a8a455d85b170001e912b63
+              name: 'IPSec Tunnel Status (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.51.{#SNMPINDEX}'
+              key: 'cipSecTunStatus[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              valuemap:
+                name: TunnelStatus
+              preprocessing:
+                - type: CHECK_NOT_SUPPORTED
+                  parameters:
+                    - ''
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+            - uuid: 3770eb33b4b34dec832b47e3109ec768
+              name: 'IPSec Tunnel SA Total Refreshes (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.9.9.171.1.3.2.1.13.{#SNMPINDEX}'
+              key: 'cipSecTunTotalRefreshes[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: IPSec
+                - tag: Stage
+                  value: Phase2
+          graph_prototypes:
+            - uuid: 1794a20a9f224712bab72f68950240b1
+              name: 'IPSec Tunnel Status (Peer: {#RPADDR}: Traffic Selector: {#LADDR1}/{#LADDR2} - {#RADDR1}/{#RADDR2})'
+              yaxismin: '-1'
+              yaxismax: '2'
+              ymin_type_1: FIXED
+              ymax_type_1: FIXED
+              graph_items:
+                - drawtype: BOLD_LINE
+                  color: FF8000
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunStatus[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+                - sortorder: '1'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunActiveTime[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+                - sortorder: '2'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunHcInOctets[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+                - sortorder: '3'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunHcInDecompOctets[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+                - sortorder: '4'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunInPkts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+                - sortorder: '5'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunInDropPkts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+                - sortorder: '6'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunHcOutOctets[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+                - sortorder: '7'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunHcOutUncompOctets[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+                - sortorder: '8'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunOutPkts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+                - sortorder: '9'
+                  drawtype: DOTTED_LINE
+                  color: FFFFFF
+                  calc_fnc: ALL
+                  item:
+                    host: 'Cisco ASA IPSec'
+                    key: 'cipSecTunOutDropPkts[{#RPADDR}:{#LADDR1}/{#LADDR2}-{#RADDR1}/{#RADDR2}]'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var input = JSON.parse(value);
+                  
+                  // base: X        → RPADDR
+                  // ext:  X.1      → LADDR / RADDR
+                  var base = {};
+                  var ext  = {};
+                  
+                  for (var i = 0; i < input.length; i++) {
+                      var row = input[i];
+                      var idx = row["{#SNMPINDEX}"];
+                  
+                      if (idx.endsWith(".1")) {
+                          var clean = idx.slice(0, -2);
+                          ext[clean] = row;
+                      } else {
+                          base[idx] = row;
+                      }
+                  }
+                  
+                  var out = [];
+                  
+                  for (var idx in ext) {
+                      var e = ext[idx];
+                      var b = base[idx] || {};
+                  
+                      out.push({
+                          "{#SNMPINDEX}": idx,
+                  
+                          // из базовой записи
+                          "{#RPADDR}": b["{#RPADDR}"] || "",
+                  
+                          // из .1 записи
+                          "{#LADDR1}": e["{#LADDR1}"] || "",
+                          "{#LADDR2}": e["{#LADDR2}"] || "",
+                          "{#RADDR1}": e["{#RADDR1}"] || "",
+                          "{#RADDR2}": e["{#RADDR2}"] || ""
+                      });
+                  }
+                  
+                  // ❗ если нужно ОСТАВЛЯТЬ X без X.1 — раскомментируй
+                  /*
+                  for (var idx in base) {
+                      if (!ext[idx]) {
+                          out.push({
+                              "{#SNMPINDEX}": idx,
+                              "{#RPADDR}": base[idx]["{#RPADDR}"] || ""
+                          });
+                      }
+                  }
+                  */
+                  
+                  return JSON.stringify(out);
+                  
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  function tryParseIPv4(s) {
+                      // Убираем пробелы
+                      s = s.replace(/\s+/g, '');
+                  
+                      // Если строка длиной 8 символов HEX
+                      if (/^[0-9A-Fa-f]{8}$/.test(s)) {
+                          return parseInt(s.substr(0,2),16) + "." +
+                                 parseInt(s.substr(2,2),16) + "." +
+                                 parseInt(s.substr(4,2),16) + "." +
+                                 parseInt(s.substr(6,2),16);
+                      }
+                  
+                      // Если длина 4 → считаем raw bytes
+                      if (s.length === 4) {
+                          return s.charCodeAt(0) + "." +
+                                 s.charCodeAt(1) + "." +
+                                 s.charCodeAt(2) + "." +
+                                 s.charCodeAt(3);
+                      }
+                  
+                      return null; // не IPv4
+                  }
+                  
+                  function tryParseIPv6(s) {
+                      s = s.replace(/\s+/g, '');
+                  
+                      // 32 hex символа → IPv6
+                      if (/^[0-9A-Fa-f]{32}$/.test(s)) {
+                          var parts = [];
+                          for (var i=0;i<32;i+=4) parts.push(s.substr(i,4));
+                          var ip = parts.join(":");
+                          ip = ip.replace(/\b(?:0+:){2,}/, ':')
+                                 .split(':')
+                                 .map(function(o){ return o.replace(/^0+/, '') || '0'; })
+                                 .join(':')
+                                 .toLowerCase();
+                          return ip;
+                      }
+                  
+                      // 16 raw chars → binary IPv6
+                      if (s.length === 16) {
+                          var parts = [];
+                          for (var i=0;i<16;i+=2) {
+                              var v = (s.charCodeAt(i)<<8) + s.charCodeAt(i+1);
+                              parts.push(v.toString(16));
+                          }
+                          var ip = parts.join(":");
+                          ip = ip.replace(/\b(?:0+:){2,}/, ':')
+                                 .split(':')
+                                 .map(function(o){ return o.replace(/^0+/, '') || '0'; })
+                                 .join(':')
+                                 .toLowerCase();
+                          return ip;
+                      }
+                  
+                      return null; // не IPv6
+                  }
+                  
+                  // ---- Основной блок ----
+                  var json = JSON.parse(value);
+                  
+                  json.forEach(function(item){
+                      for (var key in item) {
+                          if (!item.hasOwnProperty(key)) continue;
+                  
+                          var v = String(item[key]).trim();
+                  
+                          var ipv4 = tryParseIPv4(v);
+                          if (ipv4 !== null) {
+                              item[key] = ipv4;
+                              continue;
+                          }
+                  
+                          var ipv6 = tryParseIPv6(v);
+                          if (ipv6 !== null) {
+                              item[key] = ipv6;
+                              continue;
+                          }
+                  
+                          // иначе оставляем как есть
+                      }
+                  });
+                  
+                  return JSON.stringify(json);
+                  
+      valuemaps:
+        - uuid: 7ee926aa5157415b8d1800c90e1bbcf0
+          name: AuthAlgo
+          mappings:
+            - value: '1'
+              newvalue: NONE
+            - value: '2'
+              newvalue: HMAC-MD5
+            - value: '3'
+              newvalue: HMAC-SHA
+        - uuid: 34a7f7b641584f79bfa7079fe9141cf3
+          name: CompAlgo
+          mappings:
+            - value: '1'
+              newvalue: NONE
+            - value: '2'
+              newvalue: LDF
+        - uuid: c63d088c407d4a938efacc1be0ffd636
+          name: DiffHellmanGrp
+          mappings:
+            - value: '1'
+              newvalue: NONE
+            - value: '2'
+              newvalue: 'GROUP 1 (768-bit)'
+            - value: '3'
+              newvalue: 'GROUP 2 (1024-bit)'
+            - value: '4'
+              newvalue: 'GROUP 5 (1536-bit)'
+            - value: '5'
+              newvalue: 'GROUP 14 (2048-bit)'
+            - value: '6'
+              newvalue: 'GROUP 15 (3072-bit)'
+            - value: '7'
+              newvalue: 'GROUP 16 (4096-bit)'
+            - value: '8'
+              newvalue: 'GROUP 19 (256-bit ECP)'
+            - value: '9'
+              newvalue: 'GROUP 20 (384-bit ECP)'
+            - value: '10'
+              newvalue: 'GROUP 21 (521-bit ECP)'
+            - value: '11'
+              newvalue: 'GROUP 21'
+        - uuid: 0c756e3f96e14a49a923dfa412548c4e
+          name: EncapMode
+          mappings:
+            - value: '1'
+              newvalue: TUNNEL
+            - value: '2'
+              newvalue: TRANSPORT
+        - uuid: e503a65275374338b68bbc3fd52e2ff1
+          name: EncryptAlgo
+          mappings:
+            - value: '1'
+              newvalue: NONE
+            - value: '2'
+              newvalue: DES
+            - value: '3'
+              newvalue: 3DES
+            - value: '4'
+              newvalue: AES-128
+            - value: '5'
+              newvalue: AES-192
+            - value: '6'
+              newvalue: AES-256
+        - uuid: 553f80c609bc4b89966f4f2e1b127b5e
+          name: IkeAuthMethod
+          mappings:
+            - value: '1'
+              newvalue: PSK
+            - value: '2'
+              newvalue: PSK
+            - value: '3'
+              newvalue: 'RSA SIGNATURE'
+            - value: '4'
+              newvalue: 'RSA ENCRYPT'
+            - value: '5'
+              newvalue: 'REVERSE PUBLIC KEY'
+        - uuid: 018859e7f5c84166a3d0250a7f4192ef
+          name: IkeHashAlgo
+          mappings:
+            - value: '1'
+              newvalue: NONE
+            - value: '2'
+              newvalue: MD5
+            - value: '3'
+              newvalue: SHA-1
+            - value: '4'
+              newvalue: '4'
+            - value: '5'
+              newvalue: '5'
+            - value: '6'
+              newvalue: '6'
+            - value: '7'
+              newvalue: SHA-256
+            - value: '8'
+              newvalue: '8'
+            - value: '9'
+              newvalue: SHA-512
+        - uuid: 30bef195c37f4da8a9df255799cd917e
+          name: IkeNegoMode
+          mappings:
+            - value: '1'
+              newvalue: MAIN
+            - value: '2'
+              newvalue: AGGRESIVE
+            - value: '3'
+              newvalue: N/A
+        - uuid: ae75c8ca364c45a9a456870e5ef0fb75
+          name: TunnelStatus
+          mappings:
+            - value: '0'
+              newvalue: INACTIVE
+            - value: '1'
+              newvalue: ACTIVE
+            - value: '2'
+              newvalue: DESTROY
+  graphs:
+    - uuid: ff65038da43e4b92a2e14efdd247acb4
+      name: 'Global IKE Tunnels Stats'
+      graph_items:
+        - drawtype: DASHED_LINE
+          color: FFFFFF
+          calc_fnc: ALL
+          item:
+            host: 'Cisco ASA IPSec'
+            key: cikeGlobalActiveTunnels
+        - sortorder: '1'
+          drawtype: GRADIENT_LINE
+          color: 1A7C11
+          item:
+            host: 'Cisco ASA IPSec'
+            key: cikeGlobalInOctets
+        - sortorder: '2'
+          drawtype: BOLD_LINE
+          color: 2774A4
+          item:
+            host: 'Cisco ASA IPSec'
+            key: cikeGlobalOutOctets
+    - uuid: ea20c00446be4ea88de74daac16b6382
+      name: 'Global IPSec Tunnels Stats'
+      graph_items:
+        - drawtype: DASHED_LINE
+          color: FFFFFF
+          calc_fnc: ALL
+          item:
+            host: 'Cisco ASA IPSec'
+            key: cipSecGlobalActiveTunnels
+        - sortorder: '1'
+          drawtype: GRADIENT_LINE
+          color: 1A7C11
+          item:
+            host: 'Cisco ASA IPSec'
+            key: cipSecGlobalHcInOctets
+        - sortorder: '2'
+          drawtype: DASHED_LINE
+          color: 00FF00
+          item:
+            host: 'Cisco ASA IPSec'
+            key: cipSecGlobalHcInDecompOctets
+        - sortorder: '3'
+          drawtype: BOLD_LINE
+          color: 2774A4
+          item:
+            host: 'Cisco ASA IPSec'
+            key: cipSecGlobalHcOutOctets
+        - sortorder: '4'
+          drawtype: DASHED_LINE
+          color: 00BFFF
+          item:
+            host: 'Cisco ASA IPSec'
+            key: cipSecGlobalOutUncompOctets
